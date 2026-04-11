@@ -1,5 +1,4 @@
 use bincode;
-use bs58::{decode, encode};
 use serde::Serialize;
 
 #[derive(Serialize, Debug)]
@@ -15,30 +14,41 @@ impl Transaction {
         Self {
             from_addr: from_addr,
             to_addr: to_addr,
-            value,
-            data: data,
+            value, // Field init shorthand
+            data,  // Field init shorthand
         }
     }
 
-    pub fn sign(&self) -> &[u8] {
-        let bytes = bincode::serialize(self).unwrap();
-        bytes
+    // Simple converting the struct to bytes
+    pub fn sign(&self) -> Vec<u8> {
+        // Using .expect() is generally preferred over .unwrap() for better error messages
+        bincode::serialize(self).expect("Failed to serialize transaction")
     }
 }
 
-pub fn create_transactions() -> [Transaction; 10] {
-    let signed_txs = [Transaction; 10];
+pub fn create_and_sign_batch() -> [Vec<u8>; 10] {
+    let txs_batch: [Transaction; 10] = std::array::from_fn(|i| {
+        Transaction::new(
+            format!("0xSENDER{i}"),
+            format!("0xRECEIVER{i}"),
+            (i as u32) * 100,
+            format!("tx-{i}"),
+        )
+    });
 
-    for i in 0..10 {
-        let tx = Transaction::new(format!("0xSENDER{i}"), format!("0xRECEIVER{i}"), i*100, format!("tx-{i}"));
-        signed_txs[i] = tx;
-    }
-
-    signed_txs
+    // Use std::array::from_fn to create a new array by signing each transaction
+    std::array::from_fn(|i| {
+        txs_batch[i].sign()
+    })
 }
 
+#[cfg(test)]
+mod tests { // Renamed for clarity
+    use super::create_and_sign_batch; // Use `super` to refer to items in the parent module
 
-#[test]
-fn create_transactions() {
-    
+    #[test]
+    fn create_and_sign_batch_test() {
+        let signed_txns = create_and_sign_batch();
+        println!("{:?}", signed_txns);
+    }
 }
