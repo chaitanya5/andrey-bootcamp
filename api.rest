@@ -1,0 +1,32 @@
+### eth_getBalance - gets the native currency balance of the wallet address
+POST https://ethereum-rpc.publicnode.com HTTP/1.1
+content-type: application/json
+
+{
+    "jsonrpc": "2.0",
+    "method": "eth_getBalance",
+    "id": 1,
+    "params": ["0xdadB0d80178819F2319190D340ce9A924f783711", "0x16cd387"]
+}
+
+### eth_getBlockByNumber - gets the block object from the blockchain
+POST https://nd-422-757-666.p2pify.com/0a9d79d93fb2f4a4b1e04695da2b77a7 HTTP/1.1
+content-type: application/json
+
+{
+    "jsonrpc": "2.0",
+    "method": "eth_getBlockByNumber",
+    "id": 1,
+    "params": ["latest", false]
+}
+
+### eth_getTransactionByHash - gets the transaction object from the node
+POST https://ethereum-rpc.publicnode.com HTTP/1.1
+content-type: application/json
+
+{
+    "jsonrpc": "2.0",
+    "method": "eth_getTransactionByHash",
+    "id": 1,
+    "params": ["0x3ddb88c591780890caeb206ad42178355390fed78e4e240d1790148fb47815af"]
+}
