@@ -450,7 +450,19 @@ func (s *StateDB) AddBalance(addr common.Address, amount *uint256.Int, reason tr
 	if stateObject == nil {
 		return uint256.Int{}
 	}
-	return stateObject.AddBalance(amount)
+	res := stateObject.AddBalance(amount)
+
+	// GlobalTracker hook
+	GlobalTracker.RLock()
+	_, tracked := GlobalTracker.Balances[addr]
+	GlobalTracker.RUnlock()
+
+	if tracked {
+		GlobalTracker.Lock()
+		GlobalTracker.Balances[addr] = stateObject.Balance().ToBig()
+		GlobalTracker.Unlock()
+	}
+	return res
 }
 
 // SubBalance subtracts amount from the account associated with addr.
@@ -462,13 +474,35 @@ func (s *StateDB) SubBalance(addr common.Address, amount *uint256.Int, reason tr
 	if amount.IsZero() {
 		return *(stateObject.Balance())
 	}
-	return stateObject.SetBalance(new(uint256.Int).Sub(stateObject.Balance(), amount))
+	res := stateObject.SetBalance(new(uint256.Int).Sub(stateObject.Balance(), amount))
+
+	// GlobalTracker hook
+	GlobalTracker.RLock()
+	_, tracked := GlobalTracker.Balances[addr]
+	GlobalTracker.RUnlock()
+	if tracked {
+		GlobalTracker.Lock()
+		GlobalTracker.Balances[addr] = stateObject.Balance().ToBig()
+		GlobalTracker.Unlock()
+	}
+
+	return res
 }
 
 func (s *StateDB) SetBalance(addr common.Address, amount *uint256.Int, reason tracing.BalanceChangeReason) {
 	stateObject := s.getOrNewStateObject(addr)
 	if stateObject != nil {
 		stateObject.SetBalance(amount)
+
+		// GlobalTracker hook
+		GlobalTracker.RLock()
+		_, tracked := GlobalTracker.Balances[addr]
+		GlobalTracker.RUnlock()
+		if tracked {
+			GlobalTracker.Lock()
+			GlobalTracker.Balances[addr] = stateObject.Balance().ToBig()
+			GlobalTracker.Unlock()
+		}
 	}
 }
 

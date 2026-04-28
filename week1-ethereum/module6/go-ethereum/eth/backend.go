@@ -414,6 +414,9 @@ func (s *Ethereum) APIs() []rpc.API {
 		}, {
 			Namespace: "net",
 			Service:   s.netRPCService,
+		}, {
+			Namespace: "custom",
+			Service:   ethapi.NewCustomAPI(),
 		},
 	}...)
 }
