@@ -1,4 +1,6 @@
+.vscode
 node_modules
+target
 .env
 .env.local
 .env.development.local
